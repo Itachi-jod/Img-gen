@@ -1,30 +1,30 @@
 const fs = require('fs');
 const axios = require('axios');
-const { Configuration, OpenAIApi } = require('openai');
+const OpenAI = require('openai');
 require('dotenv').config();
 
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
 });
-const openai = new OpenAIApi(configuration);
 
 async function generateImage(prompt) {
   try {
-    const response = await openai.createImage({
+    const response = await openai.images.generate({
+      model: 'dall-e-3', // or "dall-e-2" if preferred
       prompt,
       n: 1,
-      size: "512x512",
+      size: "1024x1024"
     });
 
-    const imageUrl = response.data.data[0].url;
+    const imageUrl = response.data[0].url;
     console.log("Image URL:", imageUrl);
 
     const img = await axios.get(imageUrl, { responseType: 'arraybuffer' });
     fs.writeFileSync('ai-image.png', img.data);
     console.log('Image saved as ai-image.png');
-  } catch (error) {
-    console.error('Error:', error.response?.data || error.message);
+  } catch (err) {
+    console.error('Error:', err.response?.data || err.message);
   }
 }
 
-generateImage("A futuristic city skyline at night with glowing neon lights");
+generateImage("A fantasy dragon flying over a medieval village");
