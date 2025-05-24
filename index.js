@@ -1,30 +1,35 @@
-const fs = require('fs');
-const axios = require('axios');
+const express = require('express');
 const OpenAI = require('openai');
-require('dotenv').config();
+const app = express();
+const PORT = process.env.PORT || 3000;
 
+// Set up OpenAI
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY, // Set this in Render's environment
 });
 
-async function generateImage(prompt = "A cute white cat sitting on a futuristic robot chair") {
+app.use(express.json());
+
+app.get('/generate', async (req, res) => {
+  const prompt = req.query.prompt;
+
+  if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
+
   try {
     const response = await openai.images.generate({
-      model: 'dall-e-2', // DALL·E 2 works with all keys
-      prompt,
+      prompt: prompt,
       n: 1,
-      size: "512x512" // Safer size for free-tier or limited access
+      size: '512x512',
     });
 
     const imageUrl = response.data[0].url;
-    console.log("Image URL:", imageUrl);
-
-    const img = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-    fs.writeFileSync('ai-image.png', img.data);
-    console.log('Image saved as ai-image.png');
+    res.json({ image: imageUrl });
   } catch (err) {
-    console.error('Error:', err.response?.data || err.message);
+    console.error(err);
+    res.status(500).json({ error: 'Image generation failed' });
   }
-}
+});
 
-generateImage();
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});
