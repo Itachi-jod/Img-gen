@@ -10,10 +10,10 @@ const openai = new OpenAI({
 async function generateImage(prompt) {
   try {
     const response = await openai.images.generate({
-      model: 'dall-e-3', // or "dall-e-2" if preferred
+      model: 'dall-e-2', // Fallback model
       prompt,
       n: 1,
-      size: "1024x1024"
+      size: "512x512"
     });
 
     const imageUrl = response.data[0].url;
@@ -27,4 +27,4 @@ async function generateImage(prompt) {
   }
 }
 
-generateImage("A fantasy dragon flying over a medieval village");
+generateImage("A futuristic city at night with flying cars and neon lights");
