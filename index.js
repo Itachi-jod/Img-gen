@@ -7,13 +7,13 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-async function generateImage(prompt) {
+async function generateImage(prompt = "A cute white cat sitting on a futuristic robot chair") {
   try {
     const response = await openai.images.generate({
-      model: 'dall-e-2', // Fallback model
+      model: 'dall-e-2', // DALL·E 2 works with all keys
       prompt,
       n: 1,
-      size: "512x512"
+      size: "512x512" // Safer size for free-tier or limited access
     });
 
     const imageUrl = response.data[0].url;
@@ -27,4 +27,4 @@ async function generateImage(prompt) {
   }
 }
 
-generateImage("A futuristic city at night with flying cars and neon lights");
+generateImage();
